@@ -11,7 +11,7 @@ import torch.optim as optim
 from torchvision.datasets import MNIST, CIFAR10, FashionMNIST
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader, Subset
-#from datasets.celeba import CelebA
+from datasets.celeba import CelebA
 from models.refinenet_dilated_baseline import RefineNetDilated
 
 __all__ = ['BaselineRunner']
@@ -65,29 +65,29 @@ class BaselineRunner():
             test_dataset = MNIST(os.path.join(self.args.run, 'datasets', 'mnist_test'), train=False, download=True,
                                  transform=test_transform)
 
-        # elif self.config.data.dataset == 'CELEBA':
-        #     if self.config.data.random_flip:
-        #         dataset = CelebA(root=os.path.join(self.args.run, 'datasets', 'celeba'), split='train',
-        #                          transform=transforms.Compose([
-        #                              transforms.CenterCrop(140),
-        #                              transforms.Resize(self.config.data.image_size),
-        #                              transforms.RandomHorizontalFlip(),
-        #                              transforms.ToTensor(),
-        #                          ]), download=True)
-        #     else:
-        #         dataset = CelebA(root=os.path.join(self.args.run, 'datasets', 'celeba'), split='train',
-        #                          transform=transforms.Compose([
-        #                              transforms.CenterCrop(140),
-        #                              transforms.Resize(self.config.data.image_size),
-        #                              transforms.ToTensor(),
-        #                          ]), download=True)
+        elif self.config.data.dataset == 'CELEBA':
+            if self.config.data.random_flip:
+                dataset = CelebA(root=os.path.join(self.args.run, 'datasets', 'celeba'), split='train',
+                                 transform=transforms.Compose([
+                                     transforms.CenterCrop(140),
+                                     transforms.Resize(self.config.data.image_size),
+                                     transforms.RandomHorizontalFlip(),
+                                     transforms.ToTensor(),
+                                 ]), download=True)
+            else:
+                dataset = CelebA(root=os.path.join(self.args.run, 'datasets', 'celeba'), split='train',
+                                 transform=transforms.Compose([
+                                     transforms.CenterCrop(140),
+                                     transforms.Resize(self.config.data.image_size),
+                                     transforms.ToTensor(),
+                                 ]), download=True)
 
-        #     test_dataset = CelebA(root=os.path.join(self.args.run, 'datasets', 'celeba_test'), split='test',
-        #                           transform=transforms.Compose([
-        #                               transforms.CenterCrop(140),
-        #                               transforms.Resize(self.config.data.image_size),
-        #                               transforms.ToTensor(),
-        #                           ]), download=True)
+            test_dataset = CelebA(root=os.path.join(self.args.run, 'datasets', 'celeba_test'), split='test',
+                                  transform=transforms.Compose([
+                                      transforms.CenterCrop(140),
+                                      transforms.Resize(self.config.data.image_size),
+                                      transforms.ToTensor(),
+                                  ]), download=True)
 
 
         dataloader = DataLoader(dataset, batch_size=self.config.training.batch_size, shuffle=True, num_workers=4)
@@ -218,30 +218,30 @@ class BaselineRunner():
 
                 torch.save(sample, os.path.join(self.args.image_folder, 'samples_{}.pth'.format(i)))
 
-        # elif self.config.data.dataset == 'CELEBA':
-        #     dataset = CelebA(root=os.path.join(self.args.run, 'datasets', 'celeba'), split='test',
-        #                      transform=transforms.Compose([
-        #                          transforms.CenterCrop(140),
-        #                          transforms.Resize(self.config.data.image_size),
-        #                          transforms.ToTensor(),
-        #                      ]), download=True)
+        elif self.config.data.dataset == 'CELEBA':
+            dataset = CelebA(root=os.path.join(self.args.run, 'datasets', 'celeba'), split='test',
+                             transform=transforms.Compose([
+                                 transforms.CenterCrop(140),
+                                 transforms.Resize(self.config.data.image_size),
+                                 transforms.ToTensor(),
+                             ]), download=True)
 
-        #     dataloader = DataLoader(dataset, batch_size=64, shuffle=True, num_workers=4)
-        #     samples, _ = next(iter(dataloader))
+            dataloader = DataLoader(dataset, batch_size=64, shuffle=True, num_workers=4)
+            samples, _ = next(iter(dataloader))
 
-        #     samples = torch.rand(100, 3, self.config.data.image_size, self.config.data.image_size,
-        #                          device=self.config.device)
+            samples = torch.rand(100, 3, self.config.data.image_size, self.config.data.image_size,
+                                 device=self.config.device)
 
-        #     all_samples = self.Langevin_dynamics(samples, score, 1000, 0.00002)
+            all_samples = self.Langevin_dynamics(samples, score, 1000, 0.00002)
 
-        #     for i, sample in enumerate(tqdm.tqdm(all_samples)):
-        #         sample = sample.view(100, self.config.data.channels, self.config.data.image_size,
-        #                              self.config.data.image_size)
+            for i, sample in enumerate(tqdm.tqdm(all_samples)):
+                sample = sample.view(100, self.config.data.channels, self.config.data.image_size,
+                                     self.config.data.image_size)
 
-        #         if self.config.data.logit_transform:
-        #             sample = torch.sigmoid(sample)
+                if self.config.data.logit_transform:
+                    sample = torch.sigmoid(sample)
 
-        #         torch.save(sample, os.path.join(self.args.image_folder, 'samples_{}.pth'.format(i)))
+                torch.save(sample, os.path.join(self.args.image_folder, 'samples_{}.pth'.format(i)))
 
         else:
             transform = transforms.Compose([
