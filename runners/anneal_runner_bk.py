@@ -320,75 +320,75 @@ class AnnealRunner():
         score.eval()
 
         imgs = []
-        # if self.config.data.dataset == 'CELEBA':
-        #     dataset = CelebA(root=os.path.join(self.args.run, 'datasets', 'celeba'), split='test',
-        #                      transform=transforms.Compose([
-        #                          transforms.CenterCrop(140),
-        #                          transforms.Resize(self.config.data.image_size),
-        #                          transforms.ToTensor(),
-        #                      ]), download=True)
+        if self.config.data.dataset == 'CELEBA':
+            dataset = CelebA(root=os.path.join(self.args.run, 'datasets', 'celeba'), split='test',
+                             transform=transforms.Compose([
+                                 transforms.CenterCrop(140),
+                                 transforms.Resize(self.config.data.image_size),
+                                 transforms.ToTensor(),
+                             ]), download=True)
 
-        #     dataloader = DataLoader(dataset, batch_size=20, shuffle=True, num_workers=4)
-        #     refer_image, _ = next(iter(dataloader))
+            dataloader = DataLoader(dataset, batch_size=20, shuffle=True, num_workers=4)
+            refer_image, _ = next(iter(dataloader))
 
-        #     samples = torch.rand(20, 20, 3, self.config.data.image_size, self.config.data.image_size,
-        #                          device=self.config.device)
+            samples = torch.rand(20, 20, 3, self.config.data.image_size, self.config.data.image_size,
+                                 device=self.config.device)
 
-        #     all_samples = self.anneal_Langevin_dynamics_inpainting(samples, refer_image, score, sigmas, 100, 0.00002)
-        #     torch.save(refer_image, os.path.join(self.args.image_folder, 'refer_image.pth'))
+            all_samples = self.anneal_Langevin_dynamics_inpainting(samples, refer_image, score, sigmas, 100, 0.00002)
+            torch.save(refer_image, os.path.join(self.args.image_folder, 'refer_image.pth'))
 
-        #     for i, sample in enumerate(tqdm.tqdm(all_samples)):
-        #         sample = sample.view(400, self.config.data.channels, self.config.data.image_size,
-        #                              self.config.data.image_size)
+            for i, sample in enumerate(tqdm.tqdm(all_samples)):
+                sample = sample.view(400, self.config.data.channels, self.config.data.image_size,
+                                     self.config.data.image_size)
 
-        #         if self.config.data.logit_transform:
-        #             sample = torch.sigmoid(sample)
+                if self.config.data.logit_transform:
+                    sample = torch.sigmoid(sample)
 
-        #         image_grid = make_grid(sample, nrow=20)
-        #         if i % 10 == 0:
-        #             im = Image.fromarray(image_grid.mul_(255).add_(0.5).clamp_(0, 255).permute(1, 2, 0).to('cpu', torch.uint8).numpy())
-        #             imgs.append(im)
+                image_grid = make_grid(sample, nrow=20)
+                if i % 10 == 0:
+                    im = Image.fromarray(image_grid.mul_(255).add_(0.5).clamp_(0, 255).permute(1, 2, 0).to('cpu', torch.uint8).numpy())
+                    imgs.append(im)
 
-        #         save_image(image_grid, os.path.join(self.args.image_folder, 'image_completion_{}.png'.format(i)))
-        #         torch.save(sample, os.path.join(self.args.image_folder, 'image_completion_raw_{}.pth'.format(i)))
+                save_image(image_grid, os.path.join(self.args.image_folder, 'image_completion_{}.png'.format(i)))
+                torch.save(sample, os.path.join(self.args.image_folder, 'image_completion_raw_{}.pth'.format(i)))
 
-        # else:
-        transform = transforms.Compose([
-            transforms.Resize(self.config.data.image_size),
-            transforms.ToTensor()
-        ])
+        else:
+            transform = transforms.Compose([
+                transforms.Resize(self.config.data.image_size),
+                transforms.ToTensor()
+            ])
 
-        if self.config.data.dataset == 'CIFAR10':
-            dataset = CIFAR10(os.path.join(self.args.run, 'datasets', 'cifar10'), train=True, download=True,
-                              transform=transform)
-        elif self.config.data.dataset == 'SVHN':
-            dataset = SVHN(os.path.join(self.args.run, 'datasets', 'svhn'), split='train', download=True,
-                           transform=transform)
+            if self.config.data.dataset == 'CIFAR10':
+                dataset = CIFAR10(os.path.join(self.args.run, 'datasets', 'cifar10'), train=True, download=True,
+                                  transform=transform)
+            elif self.config.data.dataset == 'SVHN':
+                dataset = SVHN(os.path.join(self.args.run, 'datasets', 'svhn'), split='train', download=True,
+                               transform=transform)
 
-        dataloader = DataLoader(dataset, batch_size=20, shuffle=True, num_workers=4)
-        data_iter = iter(dataloader)
-        refer_image, _ = next(data_iter)
+            dataloader = DataLoader(dataset, batch_size=20, shuffle=True, num_workers=4)
+            data_iter = iter(dataloader)
+            refer_image, _ = next(data_iter)
 
-        torch.save(refer_image, os.path.join(self.args.image_folder, 'refer_image.pth'))
-        samples = torch.rand(20, 20, self.config.data.channels, self.config.data.image_size,
-                             self.config.data.image_size).to(self.config.device)
+            torch.save(refer_image, os.path.join(self.args.image_folder, 'refer_image.pth'))
+            samples = torch.rand(20, 20, self.config.data.channels, self.config.data.image_size,
+                                 self.config.data.image_size).to(self.config.device)
 
-        all_samples = self.anneal_Langevin_dynamics_inpainting(samples, refer_image, score, sigmas, 100, 0.00002)
+            all_samples = self.anneal_Langevin_dynamics_inpainting(samples, refer_image, score, sigmas, 100, 0.00002)
 
-        for i, sample in enumerate(tqdm.tqdm(all_samples)):
-            sample = sample.view(400, self.config.data.channels, self.config.data.image_size,
-                                 self.config.data.image_size)
+            for i, sample in enumerate(tqdm.tqdm(all_samples)):
+                sample = sample.view(400, self.config.data.channels, self.config.data.image_size,
+                                     self.config.data.image_size)
 
-            if self.config.data.logit_transform:
-                sample = torch.sigmoid(sample)
+                if self.config.data.logit_transform:
+                    sample = torch.sigmoid(sample)
 
-            image_grid = make_grid(sample, nrow=20)
-            if i % 10 == 0:
-                im = Image.fromarray(image_grid.mul_(255).add_(0.5).clamp_(0, 255).permute(1, 2, 0).to('cpu', torch.uint8).numpy())
-                imgs.append(im)
+                image_grid = make_grid(sample, nrow=20)
+                if i % 10 == 0:
+                    im = Image.fromarray(image_grid.mul_(255).add_(0.5).clamp_(0, 255).permute(1, 2, 0).to('cpu', torch.uint8).numpy())
+                    imgs.append(im)
 
-            save_image(image_grid, os.path.join(self.args.image_folder, 'image_completion_{}.png'.format(i)))
-            torch.save(sample, os.path.join(self.args.image_folder, 'image_completion_raw_{}.pth'.format(i)))
+                save_image(image_grid, os.path.join(self.args.image_folder, 'image_completion_{}.png'.format(i)))
+                torch.save(sample, os.path.join(self.args.image_folder, 'image_completion_raw_{}.pth'.format(i)))
 
 
         imgs[0].save(os.path.join(self.args.image_folder, "movie.gif"), save_all=True, append_images=imgs[1:], duration=1, loop=0)
